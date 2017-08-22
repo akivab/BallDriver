@@ -57,6 +57,8 @@ public class animate : MonoBehaviour {
 	};
 	void selectEffect()
 	{
+		effect2 = makeGifEffect ();
+		return;
 		if(specialMode>0)
 		{
 			effect2=makeEfffect("pumpkin");
@@ -367,6 +369,13 @@ public class animate : MonoBehaviour {
 		return effect;
 	}
 
+	public FullBallEffect makeGifEffect() {
+		GifAnim effect = (GifAnim)ScriptableObject.CreateInstance("GifAnim");
+		effect.master = this;
+		effect.LoadGIF("pacman");
+		return effect;
+
+	}
 	public FullBallEffect makePromoEfffect()
 	{
 		image effect=(image)ScriptableObject.CreateInstance("image");
