@@ -1,0 +1,25 @@
+COM3
+A=Solid,255,0,0
+B=Solid,0,255,0
+C=Solid,0,0,255
+D=Solid,0,255,255
+E=Solid,255,0,255
+F=Solid,255,255,0
+G=sparkleother,50,Solid,255,0,0
+H=sparkleother,50,Solid,0,255,0
+I=sparkleother,50,Solid,0,0,255
+J=fillers,0,0,0
+K=wander,0,0,0
+L=divisions,0,0,0
+M=colorSparkle,30,0,0
+N=factions,0,0,0
+O=checker,8,8,0,0,255,Solid,0,0,64,              speed +-4 12,count 1 6,r,g,b,effect...
+P=spiral,1,-8,6,0,255,255,Solid,0,0,64,              twist -1 1,speed +-4 12,count 1 6,r,g,b,effect...
+Q=checker,-8,2,255,0,255,Solid,0,0,64,              speed +-4 12,count 1 6,r,g,b,effect...
+R=spiral,1,8,4,255,255,0,Solid,0,0,64,              twist -1 1,speed +-4 12,count 1 6,r,g,b,effect...
+S=image,0
+T=image,1
+U=image,2
+V=image,3
+W=ColorWash
+X=eye
