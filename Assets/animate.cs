@@ -53,12 +53,10 @@ public class animate : MonoBehaviour {
 		"tiling",
 		"life",
 		"fillers",
-		"factions",
+		"factions"
 	};
 	void selectEffect()
 	{
-		effect2 = makeGifEffect ();
-		return;
 		if(specialMode>0)
 		{
 			effect2=makeEfffect("pumpkin");
@@ -222,10 +220,11 @@ public class animate : MonoBehaviour {
 		"U=image,2",
 		"V=image,3",
 		"W=ColorWash",
-		"X=eye"
+		"X=eye",
+		"Y=GifAnim"
 	};
 
-	string[] interactiveList=new string[24];
+	string[] interactiveList=new string[25];
 	string loadInteractice(string filePath)
 	{
 		string [] fromfile=hardcoded;//readlist(filePath);
@@ -363,6 +362,7 @@ public class animate : MonoBehaviour {
 
 	public FullBallEffect makeArgEfffect(string name,int i,string[]argv)
 	{
+		
 		FullBallEffect effect=(FullBallEffect)ScriptableObject.CreateInstance(name);
 		effect.master=this;
 		effect.init(i,argv);
@@ -378,6 +378,11 @@ public class animate : MonoBehaviour {
 	}
 	public FullBallEffect makePromoEfffect()
 	{
+		if (Random.value < 0.1)
+		{
+			return makeGifEffect();
+		}
+			
 		image effect=(image)ScriptableObject.CreateInstance("image");
 		effect.master=this;
 		effect.promo (promoNumber);
@@ -417,7 +422,7 @@ public class animate : MonoBehaviour {
 	char[]keys=new char[4];
 	void serialKeyDown(char c)
 	{
-		if (c < 'A' || c > 'X')
+		if (c < 'A' || c > 'Y')
 			return;
 		framecounter=100;
 		checkPromo (c);
@@ -435,9 +440,18 @@ public class animate : MonoBehaviour {
 		}
 		if(i<active.Length)
 		{
-			string command=interactiveList[c-'A'];
-			string[] argv=command.Split(',');
-			FullBallEffect effect=makeArgEfffect(argv[0],1,argv);
+			FullBallEffect effect;
+			if (c == 'Y')
+			{
+				effect = makeGifEffect();
+			}
+			else
+			{
+				string command = interactiveList[c - 'A'];
+				string[] argv = command.Split(',');
+				effect = makeArgEfffect(argv[0], 1, argv);
+			}
+
 			active[i]=effect;
 			keys[i]=c;
 		}
@@ -445,7 +459,6 @@ public class animate : MonoBehaviour {
 	}
 	void serialKeyUp(char c)
 	{
-		framecounter=100;
 		for(int i=0;i<keys.Length;i++)
 		{
 			if(keys[i]==c)
@@ -456,6 +469,7 @@ public class animate : MonoBehaviour {
 				break;
 			}
 		}
+		framecounter = 0;
 	}
 
 	char updown;
