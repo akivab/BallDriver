@@ -32,7 +32,7 @@ public class animate : MonoBehaviour {
 	int promoNumber;
 	string promoString="";
 	public int specialMode=0;
-
+	private LocalNetworkScanner myLocalNetworkScanner = null;
 
 	static string[] initlist=new string[]{
 		"sparkleother",
@@ -57,6 +57,12 @@ public class animate : MonoBehaviour {
 	};
 	void selectEffect()
 	{
+		if (myLocalNetworkScanner != null && myLocalNetworkScanner.getLatestNetworkUpdate() == LatestNetworkUpdate.DOWNLOADED_IMAGE)
+		{
+			effect2 = makeNetworkMediaEffect();
+			myLocalNetworkScanner.ResetState();
+			return;
+		}
 		if(specialMode>0)
 		{
 			effect2=makeEfffect("pumpkin");
@@ -221,10 +227,11 @@ public class animate : MonoBehaviour {
 		"V=image,3",
 		"W=ColorWash",
 		"X=eye",
-		"Y=GifAnim"
+		"Y=GifAnim",
+		"Z=LastNetworkImage"
 	};
 
-	string[] interactiveList=new string[25];
+	string[] interactiveList=new string[26];
 	string loadInteractice(string filePath)
 	{
 		string [] fromfile=hardcoded;//readlist(filePath);
@@ -250,6 +257,7 @@ public class animate : MonoBehaviour {
 		fulllist=initlist;
 		selectEffect();
 		copyEffect();
+		myLocalNetworkScanner = new LocalNetworkScanner();
 	}
 
 	void closeCurrentPort()
@@ -325,7 +333,7 @@ public class animate : MonoBehaviour {
 	}
 	void checkKeyboard()
 	{
-		for (char c = 'a'; c < 'z'; c++) {
+		for (char c = 'a'; c <= 'z'; c++) {
 			if (Input.GetKeyDown (c+"")) {
 				serialKeyDown ((char)(c-32));
 			}
@@ -334,9 +342,41 @@ public class animate : MonoBehaviour {
 			}
 		}
 	}
+
+	FullBallEffect makeNetworkMediaEffect() {
+		image effect2 = (image)ScriptableObject.CreateInstance("image");
+		effect2.master = this;
+		effect2.promo(myLocalNetworkScanner.getLatestImageTexture());
+		return effect2;
+	}
+	
+	void checkLocalNetwork() {
+		if (myLocalNetworkScanner == null) {
+			Debug.Log("Network manager is NULL");
+			return;
+		}
+		if (myLocalNetworkScanner.ShouldStartDownload())
+		{
+			StartCoroutine(myLocalNetworkScanner.Download());
+		}
+		else
+		{
+			if (myLocalNetworkScanner.getLatestNetworkUpdate() == LatestNetworkUpdate.GOT_LATEST_COMMAND)
+			{
+				if (myLocalNetworkScanner.getLatestAction().Equals("down")) {
+					serialKeyDown(myLocalNetworkScanner.getLatestCommand());
+				} else {
+					serialKeyUp(myLocalNetworkScanner.getLatestCommand());
+				}
+				myLocalNetworkScanner.ResetState();
+			}
+		}
+	}
+
 	// Update is called once per frame
 	void Update () {
 		checkKeyboard ();
+		checkLocalNetwork();
 //		checkport();
 //		ReadSerial();
 	}
@@ -374,7 +414,17 @@ public class animate : MonoBehaviour {
 		effect.master = this;
 		effect.LoadGIF("pacman");
 		return effect;
+	}
 
+	public FullBallEffect makeLastNetworkImageEffect() {
+		if (myLocalNetworkScanner.getLatestImageTexture() != null)
+		{
+			return makeNetworkMediaEffect();
+		}
+		else
+		{
+			return makePromoEfffect();
+		}
 	}
 	public FullBallEffect makePromoEfffect()
 	{
@@ -422,7 +472,7 @@ public class animate : MonoBehaviour {
 	char[]keys=new char[4];
 	void serialKeyDown(char c)
 	{
-		if (c < 'A' || c > 'Y')
+		if (c < 'A' || c > 'Z')
 			return;
 		framecounter=100;
 		checkPromo (c);
@@ -444,6 +494,10 @@ public class animate : MonoBehaviour {
 			if (c == 'Y')
 			{
 				effect = makeGifEffect();
+			}
+			else if (c == 'Z')
+			{
+				effect = makeLastNetworkImageEffect();
 			}
 			else
 			{
@@ -499,7 +553,6 @@ public class animate : MonoBehaviour {
 	int builds=0;
 	public void buildFrame(Color[] display,Vector3[] points)
 	{
-		
 		try
 		{
 			switch(state)
